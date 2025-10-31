@@ -28,7 +28,7 @@ import uk.ac.tees.mad.nutriscan.ui.theme.GreenPrimary
 import uk.ac.tees.mad.nutriscan.ui.theme.White
 
 @Composable
-fun SplashScreen(navController : NavHostController, onSplashFinished: () -> Unit) {
+fun SplashScreen(onSplashFinished: () -> Unit) {
     val alpha = remember { Animatable(0f) }
     val size = remember { Animatable(0.dp, Dp.VectorConverter) }
     LaunchedEffect(key1 = true) {

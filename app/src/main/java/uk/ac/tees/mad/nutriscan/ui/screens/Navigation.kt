@@ -10,8 +10,7 @@ import com.nutriscan.ui.splash.SplashScreen
 sealed class NutriNavigationComp(val route: String){
     object Splash : NutriNavigationComp("splash")
     object Home : NutriNavigationComp("home")
-    object Login : NutriNavigationComp("login")
-    object Register : NutriNavigationComp("register")
+    object Auth : NutriNavigationComp("auth")
 
 }
 
@@ -21,8 +20,15 @@ fun NutriScanApp() {
 
     NavHost(navController = navController, startDestination = NutriNavigationComp.Splash.route){
         composable(NutriNavigationComp.Splash.route){
-            SplashScreen(navController = navController){
-
+            SplashScreen(){
+                navController.navigate(NutriNavigationComp.Auth.route){
+                    popUpTo(0)
+                }
+            }
+        }
+        composable(NutriNavigationComp.Auth.route){
+            AuthScreen(){
+                navController.navigate(NutriNavigationComp.Home.route)
             }
         }
     }
