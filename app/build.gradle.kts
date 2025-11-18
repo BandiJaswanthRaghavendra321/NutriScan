@@ -1,3 +1,5 @@
+import org.gradle.kotlin.dsl.implementation
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -43,6 +45,15 @@ android {
 }
 
 dependencies {
+
+    val camerax_version = "1.3.4"
+
+    implementation ("androidx.camera:camera-core:$camerax_version")
+    implementation ("androidx.camera:camera-camera2:$camerax_version")
+    implementation ("androidx.camera:camera-lifecycle:$camerax_version")
+    implementation ("androidx.camera:camera-view:$camerax_version")
+    implementation("com.google.guava:guava:31.1-android")
+    implementation ("com.google.mlkit:barcode-scanning:17.2.0")
 
     implementation("com.cloudinary:cloudinary-android:3.1.1")
     implementation("com.squareup.retrofit2:retrofit:2.9.0")

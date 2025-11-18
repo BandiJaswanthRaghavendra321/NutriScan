@@ -22,9 +22,15 @@ fun NutriScanApp() {
     val authenticationViewModel = hiltViewModel<AuthenticationVM>()
     NavHost(navController = navController, startDestination = NutriNavigationComp.Splash.route){
         composable(NutriNavigationComp.Splash.route){
-            SplashScreen(){
-                navController.navigate(NutriNavigationComp.Auth.route){
-                    popUpTo(0)
+            SplashScreen() {
+                if (authenticationViewModel.loggedIn) {
+                    navController.navigate(NutriNavigationComp.Home.route) {
+                        popUpTo(0)
+                    }
+                } else {
+                    navController.navigate(NutriNavigationComp.Auth.route) {
+                        popUpTo(0)
+                    }
                 }
             }
         }
@@ -32,7 +38,7 @@ fun NutriScanApp() {
             AuthScreen(authenticationViewModel, navController)
         }
         composable(NutriNavigationComp.Home.route){
-            HomeScreen()
+            HomeScreen(){}
         }
     }
 
