@@ -7,6 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.nutriscan.ui.splash.SplashScreen
 import uk.ac.tees.mad.nutriscan.ui.viewmodels.AuthenticationVM
+import uk.ac.tees.mad.nutriscan.ui.viewmodels.MainVM
 
 
 sealed class NutriNavigationComp(val route: String){
@@ -20,6 +21,8 @@ sealed class NutriNavigationComp(val route: String){
 fun NutriScanApp() {
     val navController = rememberNavController()
     val authenticationViewModel = hiltViewModel<AuthenticationVM>()
+    val homeVm = hiltViewModel<MainVM>()
+
     NavHost(navController = navController, startDestination = NutriNavigationComp.Splash.route){
         composable(NutriNavigationComp.Splash.route){
             SplashScreen() {
@@ -38,7 +41,7 @@ fun NutriScanApp() {
             AuthScreen(authenticationViewModel, navController)
         }
         composable(NutriNavigationComp.Home.route){
-            HomeScreen(onBarcodeScanned = {}, onNavigateToProfile = {}, onNavigateToHistory = {})
+            HomeScreen(viewModel = homeVm,onBarcodeScanned = {}, onNavigateToProfile = {}, onNavigateToHistory = {})
         }
     }
 

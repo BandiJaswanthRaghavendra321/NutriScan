@@ -10,6 +10,7 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -24,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -35,11 +37,14 @@ import com.google.mlkit.vision.common.InputImage
 import uk.ac.tees.mad.nutriscan.ui.theme.GreenPrimary
 import uk.ac.tees.mad.nutriscan.ui.theme.White
 import java.util.concurrent.Executors
+import uk.ac.tees.mad.nutriscan.R
+import uk.ac.tees.mad.nutriscan.ui.viewmodels.MainVM
 
 
 @kotlin.OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
+    viewModel : MainVM,
     onBarcodeScanned: (String) -> Unit,
     onNavigateToProfile: () -> Unit,
     onNavigateToHistory: () -> Unit
@@ -171,6 +176,8 @@ fun HomeScreen(
                             previewView
                         }
                     )
+                    Image(painterResource(R.drawable.barcode), contentDescription = "",
+                        colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(GreenPrimary))
                 } else {
                     Text("Camera permission not granted", color = GreenPrimary)
                 }
