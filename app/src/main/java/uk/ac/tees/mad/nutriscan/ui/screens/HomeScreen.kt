@@ -3,9 +3,7 @@ package uk.ac.tees.mad.nutriscan.ui.screens
 import android.Manifest
 import android.content.pm.PackageManager
 import android.util.Log
-import androidx.annotation.OptIn
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -14,15 +12,13 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
@@ -30,25 +26,28 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import coil.compose.rememberAsyncImagePainter
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
+import uk.ac.tees.mad.nutriscan.R
+import uk.ac.tees.mad.nutriscan.data.remote.model.ApiResponse
+import uk.ac.tees.mad.nutriscan.data.remote.model.Product
 import uk.ac.tees.mad.nutriscan.ui.theme.GreenPrimary
 import uk.ac.tees.mad.nutriscan.ui.theme.White
-import java.util.concurrent.Executors
-import uk.ac.tees.mad.nutriscan.R
 import uk.ac.tees.mad.nutriscan.ui.viewmodels.MainVM
+import java.util.concurrent.Executors
 
-
-@kotlin.OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    viewModel : MainVM,
+    viewModel: MainVM,
     onBarcodeScanned: (String) -> Unit,
     onNavigateToProfile: () -> Unit,
     onNavigateToHistory: () -> Unit
 ) {
+    val productDetails by viewModel.product.collectAsState()
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     var hasCameraPermission by remember {
@@ -62,62 +61,51 @@ fun HomeScreen(
 
     var barcodeValue by remember { mutableStateOf<String?>(null) }
 
+    LaunchedEffect(barcodeValue) {
+        if (barcodeValue != null) {
+            viewModel.fetchApiData(barcodeValue!!)
+            Log.d("Barcode", barcodeValue!!)
+        }
+    }
+
     Scaffold(
-//        topBar = {
-//            TopAppBar(
-//                title = {
-//                    Text(
-//                        "NutriScan",
-//                        fontWeight = FontWeight.Bold,
-//                        color = White
-//                    )
-//                },
-//                colors = TopAppBarDefaults.topAppBarColors(
-//                    containerColor = GreenPrimary
-//                ),
-//                actions = {
-//                    IconButton(onClick = onNavigateToHistory) {
-//                        Icon(
-//                            imageVector = Icons.Default.History,
-//                            contentDescription = "History",
-//                            tint = White
-//                        )
-//                    }
-//                    IconButton(onClick = onNavigateToProfile) {
-//                        Icon(
-//                            imageVector = Icons.Default.AccountCircle,
-//                            contentDescription = "Profile",
-//                            tint = White
-//                        )
-//                    }
-//                }
-//            )
-//        },
         containerColor = White
     ) { padding ->
         Column(
             modifier = Modifier
+                .fillMaxSize()
                 .padding(padding)
-                .fillMaxSize(),
+                .padding(horizontal = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
+            Spacer(modifier = Modifier.height(12.dp))
 
+            Text(
+                text = "Scan a Product 🍎",
+                style = MaterialTheme.typography.titleMedium,
+                color = GreenPrimary,
+                fontWeight = FontWeight.Bold
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Camera preview container
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(350.dp)
-                    .background(GreenPrimary.copy(alpha = 0.1f)),
+                    .height(300.dp)
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(GreenPrimary.copy(alpha = 0.05f)),
                 contentAlignment = Alignment.Center
             ) {
                 if (hasCameraPermission) {
                     AndroidView(
                         modifier = Modifier
                             .fillMaxSize()
-                            .clip(RoundedCornerShape(16.dp)),
+                            .clip(RoundedCornerShape(20.dp)),
                         factory = { ctx ->
                             val previewView = PreviewView(ctx)
-
                             val cameraProviderFuture = ProcessCameraProvider.getInstance(ctx)
                             cameraProviderFuture.addListener({
                                 val cameraProvider = cameraProviderFuture.get()
@@ -153,9 +141,7 @@ fun HomeScreen(
                                                 .addOnFailureListener {
                                                     Log.e("ScanScreen", "Barcode scan failed", it)
                                                 }
-                                                .addOnCompleteListener {
-                                                    imageProxy.close()
-                                                }
+                                                .addOnCompleteListener { imageProxy.close() }
                                         } else imageProxy.close()
                                     }
                                 }
@@ -172,46 +158,149 @@ fun HomeScreen(
                                     Log.e("ScanScreen", "Camera binding failed", e)
                                 }
                             }, ContextCompat.getMainExecutor(ctx))
-
                             previewView
                         }
                     )
-                    Image(painterResource(R.drawable.barcode), contentDescription = "",
-                        colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(GreenPrimary))
+
+                    Image(
+                        painter = painterResource(R.drawable.barcode),
+                        contentDescription = "Scan overlay",
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier
+                            .size(140.dp),
+                        colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(GreenPrimary)
+                    )
                 } else {
-                    Text("Camera permission not granted", color = GreenPrimary)
+                    Text(
+                        text = "Camera permission not granted",
+                        color = GreenPrimary,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
-            barcodeValue?.let {
-                Text(
-                    text = "Scanned Code: $it",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = GreenPrimary
-                )
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
+            // Card for product result
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+                shape = RoundedCornerShape(24.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White)
             ) {
-                ElevatedButton(
-                    onClick = onNavigateToProfile,
-                    shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = GreenPrimary)
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(20.dp),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Text("Profile", color = White)
-                }
-                ElevatedButton(
-                    onClick = onNavigateToHistory,
-                    shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = GreenPrimary)
-                ) {
-                    Text("History", color = White)
+                    when (productDetails) {
+                        is ApiResponse.Initial -> {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                barcodeValue?.let {
+                                    Text(
+                                        text = "Scanned Code: $it",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = GreenPrimary
+                                    )
+                                }
+                                Spacer(modifier = Modifier.height(12.dp))
+                                Text(
+                                    "Scan a barcode to view details",
+                                    color = Color.Gray
+                                )
+                            }
+                        }
+
+                        is ApiResponse.Loading -> {
+                            CircularProgressIndicator(color = GreenPrimary)
+                        }
+
+                        is ApiResponse.Success -> {
+                            val product = (productDetails as ApiResponse.Success<Product>).data
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Top,
+                                modifier = Modifier.padding(16.dp)
+                            ) {
+                                product.image_url?.let {
+                                    Image(
+                                        painter = rememberAsyncImagePainter(it),
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .size(120.dp)
+                                            .clip(RoundedCornerShape(16.dp)),
+                                        contentScale = ContentScale.Crop
+                                    )
+                                    Spacer(modifier = Modifier.height(12.dp))
+                                }
+
+                                Text(
+                                    text = product.product_name ?: "Unknown Product",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = GreenPrimary,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = "Brand: ${product.brands ?: "Not available"}",
+                                    color = Color.Gray,
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+
+                                Spacer(modifier = Modifier.height(12.dp))
+
+                                product.nutriments?.let { n ->
+                                    Card(
+                                        colors = CardDefaults.cardColors(containerColor = GreenPrimary.copy(alpha = 0.05f)),
+                                        shape = RoundedCornerShape(16.dp),
+                                        modifier = Modifier.fillMaxWidth()
+                                    ) {
+                                        Column(modifier = Modifier.padding(16.dp)) {
+                                            Text("Nutrition per 100g:", fontWeight = FontWeight.Bold, color = GreenPrimary)
+                                            Spacer(modifier = Modifier.height(8.dp))
+                                            Text("Energy: ${n.energy_kcal_100g ?: 0} kcal")
+                                            Text("Fat: ${n.fat_100g ?: 0} g (Saturated: ${n.saturated_fat_100g ?: 0} g)")
+                                            Text("Carbs: ${n.carbohydrates_100g ?: 0} g (Sugars: ${n.sugars_100g ?: 0} g)")
+                                            Text("Proteins: ${n.proteins_100g ?: 0} g")
+                                            Text("Fiber: ${n.fiber_100g ?: 0} g")
+                                            Text("Salt: ${n.salt_100g ?: 0} g")
+                                        }
+                                    }
+                                }
+
+                                Spacer(modifier = Modifier.height(12.dp))
+
+                                product.nutriscore_grade?.let {
+                                    Text(
+                                        text = "NutriScore: ${it.uppercase()}",
+                                        color = GreenPrimary,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
+                        }
+
+                        is ApiResponse.Error -> {
+                            val message = (productDetails as ApiResponse.Error).message
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(
+                                    text = "Error: $message",
+                                    color = Color.Red,
+                                    modifier = Modifier.padding(8.dp)
+                                )
+                                Button(
+                                    onClick = { barcodeValue?.let { viewModel.fetchApiData(it) } },
+                                    colors = ButtonDefaults.buttonColors(containerColor = GreenPrimary),
+                                    shape = RoundedCornerShape(16.dp)
+                                ) {
+                                    Text("Retry", color = White)
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
