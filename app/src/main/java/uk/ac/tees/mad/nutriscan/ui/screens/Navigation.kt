@@ -41,7 +41,7 @@ fun NutriScanApp() {
             AuthScreen(authenticationViewModel, navController)
         }
         composable(NutriNavigationComp.Home.route){
-            HomeScreen(viewModel = homeVm,onBarcodeScanned = {}, onNavigateToProfile = {}, onNavigateToHistory = {})
+            HomeScreen(viewModel = homeVm, navController,onBarcodeScanned = {}, onNavigateToProfile = {}, onNavigateToHistory = {})
         }
     }
 
