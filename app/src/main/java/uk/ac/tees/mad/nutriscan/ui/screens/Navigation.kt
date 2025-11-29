@@ -14,6 +14,15 @@ sealed class NutriNavigationComp(val route: String){
     object Splash : NutriNavigationComp("splash")
     object Home : NutriNavigationComp("home")
     object Auth : NutriNavigationComp("auth")
+    object Details : NutriNavigationComp("details/{barcode}") {
+        const val BARCODE_ARG = "barcode"
+
+        fun withArgs(barcode: String): String {
+            return route.replace("{$BARCODE_ARG}", barcode)
+        }
+
+        fun createRoute(): String = route
+    }
 
 }
 
@@ -42,6 +51,10 @@ fun NutriScanApp() {
         }
         composable(NutriNavigationComp.Home.route){
             HomeScreen(viewModel = homeVm, navController,onBarcodeScanned = {}, onNavigateToProfile = {}, onNavigateToHistory = {})
+        }
+        composable(NutriNavigationComp.Details.route){
+            val barcode = it.arguments?.getString("barcode")
+            DetailsScreen(homeVm, barcode)
         }
     }
 
