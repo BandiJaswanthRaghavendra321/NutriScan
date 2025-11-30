@@ -10,6 +10,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -95,7 +96,6 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Camera preview container
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -186,7 +186,6 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Card for product result
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -228,7 +227,9 @@ fun HomeScreen(
                             Column(
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.Top,
-                                modifier = Modifier.padding(16.dp)
+                                modifier = Modifier.padding(16.dp).clickable{
+                                    navController.navigate(NutriNavigationComp.Details.withArgs(barcodeValue!!))
+                                }
                             ) {
                                 product.image_url?.let {
                                     Image(

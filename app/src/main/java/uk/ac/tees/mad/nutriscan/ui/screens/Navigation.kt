@@ -2,9 +2,11 @@ package uk.ac.tees.mad.nutriscan.ui.screens
 
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.nutriscan.ui.splash.SplashScreen
 import uk.ac.tees.mad.nutriscan.ui.viewmodels.AuthenticationVM
 import uk.ac.tees.mad.nutriscan.ui.viewmodels.MainVM
@@ -52,8 +54,17 @@ fun NutriScanApp() {
         composable(NutriNavigationComp.Home.route){
             HomeScreen(viewModel = homeVm, navController,onBarcodeScanned = {}, onNavigateToProfile = {}, onNavigateToHistory = {})
         }
-        composable(NutriNavigationComp.Details.route){
-            val barcode = it.arguments?.getString("barcode")
+        composable(
+            route = NutriNavigationComp.Details.createRoute(),
+            arguments = listOf(
+                navArgument(NutriNavigationComp.Details.BARCODE_ARG) {
+                    type = NavType.StringType
+                    nullable = false
+                }
+            )
+        ) { backStackEntry ->
+            val barcode = backStackEntry.arguments?.getString(NutriNavigationComp.Details.BARCODE_ARG)
+                ?: error("Barcode is required for Details screen")
             DetailsScreen(homeVm, barcode)
         }
     }
