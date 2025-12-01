@@ -13,6 +13,7 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import uk.ac.tees.mad.nutriscan.data.remote.api.ApiService
+import uk.ac.tees.mad.nutriscan.data.remote.api.EdamamApi
 import javax.inject.Singleton
 
 @Module
@@ -20,10 +21,12 @@ import javax.inject.Singleton
 object NutiModule {
 
     private const val BASE_URL = "https://world.openfoodfacts.net/api/v2/"
+    private const val RECIPE_SEARCH_URL = "https://api.edamam.com/api/"
 
     @Provides
     @Singleton
-    fun provideRetrofit(): Retrofit =
+    @OpenFoodFactsRetrofit
+    fun provideOpenFoodFactsRetrofit(): Retrofit =
         Retrofit.Builder()
             .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
@@ -31,15 +34,29 @@ object NutiModule {
 
     @Provides
     @Singleton
-    fun provideApiService(retrofit: Retrofit): ApiService =
+    fun provideApiService(@OpenFoodFactsRetrofit retrofit: Retrofit): ApiService =
         retrofit.create(ApiService::class.java)
 
     @Provides
     @Singleton
-    fun providesAuthentication() : FirebaseAuth = Firebase.auth
+    @EdamamRetrofit
+    fun provideEdamamRetrofit(): Retrofit =
+        Retrofit.Builder()
+            .baseUrl(RECIPE_SEARCH_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .client(OkHttpClient.Builder().build())
+            .build()
 
     @Provides
     @Singleton
-    fun providesFirestore() : FirebaseFirestore = Firebase.firestore
+    fun provideEdamamApi(@EdamamRetrofit retrofit: Retrofit): EdamamApi =
+        retrofit.create(EdamamApi::class.java)
 
+    @Provides
+    @Singleton
+    fun providesAuthentication(): FirebaseAuth = Firebase.auth
+
+    @Provides
+    @Singleton
+    fun providesFirestore(): FirebaseFirestore = Firebase.firestore
 }
