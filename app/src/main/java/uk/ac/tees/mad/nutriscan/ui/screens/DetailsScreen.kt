@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import uk.ac.tees.mad.nutriscan.data.remote.model.ApiResponse
 import uk.ac.tees.mad.nutriscan.data.remote.model.Product
+import uk.ac.tees.mad.nutriscan.data.remote.model.RecipeSearchResponse
 import uk.ac.tees.mad.nutriscan.ui.theme.*
 import uk.ac.tees.mad.nutriscan.ui.viewmodels.MainVM
 
@@ -32,8 +33,10 @@ fun DetailsScreen(
 ) {
     LaunchedEffect(barcode) {
         homeVm.fetchApiData(barcode)
+        homeVm.fetchRecipe()
     }
 
+    val recipee by homeVm.recipe.collectAsState()
     val productState = homeVm.product.collectAsState().value
     var noteText by remember { mutableStateOf("") }
 
@@ -72,7 +75,7 @@ fun DetailsScreen(
 
                 is ApiResponse.Success -> {
                     val product = (productState as ApiResponse.Success<Product>).data
-                    ProductDetailsContent(product, noteText, onNoteChange = { noteText = it }, onSaveFavorite, onAddNote)
+                    ProductDetailsContent(product, recipee, noteText, onNoteChange = { noteText = it }, onSaveFavorite, onAddNote)
                 }
 
                 else -> {}
@@ -84,6 +87,7 @@ fun DetailsScreen(
 @Composable
 fun ProductDetailsContent(
     product: Product,
+    recipe: ApiResponse<RecipeSearchResponse>,
     noteText: String,
     onNoteChange: (String) -> Unit,
     onSaveFavorite: () -> Unit,
@@ -176,9 +180,29 @@ fun ProductDetailsContent(
             Column(Modifier.padding(20.dp)) {
                 Text("Healthier Alternatives", fontWeight = FontWeight.Bold, color = GreenPrimary)
                 Spacer(Modifier.height(10.dp))
-                AlternativeItem("Low-fat Greek Yogurt")
-                AlternativeItem("Organic Oat Cereal")
-                AlternativeItem("Unsweetened Almond Milk")
+                when(recipe){
+                    is ApiResponse.Initial -> {
+                        AlternativeItem("Low-fat Greek Yogurt")
+                        AlternativeItem("Organic Oat Cereal")
+                        AlternativeItem("Unsweetened Almond Milk")
+                    }
+                    is ApiResponse.Loading -> {
+                        CircularProgressIndicator(color = GreenPrimary)
+                    }
+                    is ApiResponse.Success -> {
+                        val size = recipe.data.hits.size
+                        val randomise = (0..size).random()
+                        val recipe = recipe.data.hits[randomise]
+                        recipe.recipe.label.let {
+                            AlternativeItem(it)
+                            Spacer(Modifier.height(10.dp))
+                        }
+                    }
+                    is ApiResponse.Error -> {
+                        Text("Error: ${(recipe as ApiResponse.Error).message}", color = RedError)
+                    }
+                }
+
             }
         }
 
