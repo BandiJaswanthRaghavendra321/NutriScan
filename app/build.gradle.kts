@@ -54,6 +54,8 @@ dependencies {
     implementation ("androidx.camera:camera-view:$camerax_version")
     implementation("com.google.guava:guava:31.1-android")
     implementation ("com.google.mlkit:barcode-scanning:17.2.0")
+    implementation("androidx.biometric:biometric:1.2.0-alpha05")
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
 
     implementation("com.cloudinary:cloudinary-android:3.1.1")
     implementation("com.squareup.retrofit2:retrofit:2.9.0")

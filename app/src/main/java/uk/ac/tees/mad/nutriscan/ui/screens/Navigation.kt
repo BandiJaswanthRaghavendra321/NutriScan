@@ -1,6 +1,7 @@
 package uk.ac.tees.mad.nutriscan.ui.screens
 
 import androidx.compose.runtime.Composable
+import androidx.fragment.app.FragmentActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -8,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.nutriscan.ui.splash.SplashScreen
+import uk.ac.tees.mad.nutriscan.MainActivity
 import uk.ac.tees.mad.nutriscan.ui.viewmodels.AuthenticationVM
 import uk.ac.tees.mad.nutriscan.ui.viewmodels.MainVM
 
@@ -26,10 +28,13 @@ sealed class NutriNavigationComp(val route: String){
         fun createRoute(): String = route
     }
 
+    object Profile : NutriNavigationComp("profile")
+    object History : NutriNavigationComp("history")
+
 }
 
 @Composable
-fun NutriScanApp() {
+fun NutriScanApp(activity: FragmentActivity) {
     val navController = rememberNavController()
     val authenticationViewModel = hiltViewModel<AuthenticationVM>()
     val homeVm = hiltViewModel<MainVM>()
@@ -67,6 +72,10 @@ fun NutriScanApp() {
                 ?: error("Barcode is required for Details screen")
             DetailsScreen(homeVm, barcode)
         }
-    }
+        composable(NutriNavigationComp.Profile.route){
+            ProfileScreen(authenticationViewModel){
 
+            }
+        }
+    }
 }
