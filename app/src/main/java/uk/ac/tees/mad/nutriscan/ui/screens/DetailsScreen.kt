@@ -192,7 +192,13 @@ fun ProductDetailsContent(
                     is ApiResponse.Success -> {
                         val size = recipe.data.hits.size
                         val randomise = (0..size).random()
+                        val randomise2 = (0..size).random()
+                        val recipe2 = recipe.data.hits[randomise2]
                         val recipe = recipe.data.hits[randomise]
+                        recipe2.recipe.label.let {
+                            AlternativeItem(it)
+                            Spacer(Modifier.height(10.dp))
+                        }
                         recipe.recipe.label.let {
                             AlternativeItem(it)
                             Spacer(Modifier.height(10.dp))
