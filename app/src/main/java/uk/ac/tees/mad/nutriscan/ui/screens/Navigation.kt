@@ -73,9 +73,21 @@ fun NutriScanApp(activity: FragmentActivity) {
             DetailsScreen(homeVm, barcode)
         }
         composable(NutriNavigationComp.Profile.route){
-            ProfileScreen(authenticationViewModel){
+            ProfileScreen(authenticationViewModel, navController){
 
             }
+        }
+        composable(NutriNavigationComp.History.route){
+            HistoryScreen(
+                homeVm,
+                navController,
+                onItemClick = {
+                    //navController.navigate(NutriNavigationComp.Details.withArgs(it.image_url!!))
+                },
+                onDeleteItem = {
+                    //homeVm.deleteProduct(it)
+                }
+            )
         }
     }
 }

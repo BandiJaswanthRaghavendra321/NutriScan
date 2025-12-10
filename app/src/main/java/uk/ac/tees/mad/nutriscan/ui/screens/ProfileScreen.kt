@@ -21,6 +21,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import uk.ac.tees.mad.nutriscan.data.local.BiometricPrefs
@@ -32,6 +33,7 @@ import uk.ac.tees.mad.nutriscan.utils.BiometricHelper
 @Composable
 fun ProfileScreen(
     authVm: AuthenticationVM = hiltViewModel(),
+    navController: NavController,
     onLogout: () -> Unit
 ) {
     val context = LocalContext.current
@@ -95,6 +97,9 @@ fun ProfileScreen(
                         }
                     }
                 )
+            },
+            bottomBar = {
+                BottomBar(navController = navController)
             },
             containerColor = GreenLight
         ) { padding ->
