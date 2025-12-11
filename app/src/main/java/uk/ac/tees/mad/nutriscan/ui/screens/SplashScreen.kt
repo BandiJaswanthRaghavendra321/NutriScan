@@ -14,9 +14,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import uk.ac.tees.mad.nutriscan.R
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -38,6 +40,60 @@ fun SplashScreen(onSplashFinished: () -> Unit) {
         }
         delay(2000)
         onSplashFinished()
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(GreenPrimary),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.app_logo),
+                contentDescription = "NutriScan Logo",
+                modifier = Modifier
+                    .size(size.value)
+                    .alpha(alpha.value)
+                    .clip(RoundedCornerShape(16.dp))
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            Text(
+                text = "NutriScan",
+                fontSize = 28.sp,
+                fontWeight = FontWeight.Bold,
+                color = White,
+                modifier = Modifier.alpha(alpha.value)
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = "Scan. Compare. Eat Smart.",
+                fontSize = 16.sp,
+                color = White.copy(alpha = 0.9f),
+                modifier = Modifier.alpha(alpha.value)
+            )
+        }
+    }
+}
+
+
+@Preview(showBackground = true, name = "NutriScan – Splash Screen (Animated)")
+@Composable
+fun NutriScanSplashPreview() {
+    val alpha = remember { Animatable(0f) }
+    val size = remember { Animatable(0.dp, Dp.VectorConverter) }
+
+    LaunchedEffect(Unit) {
+        kotlinx.coroutines.coroutineScope {
+            launch { alpha.animateTo(1f, animationSpec = tween(1500)) }
+            launch { size.animateTo(140.dp, animationSpec = tween(1500)) }
+        }
     }
 
     Box(

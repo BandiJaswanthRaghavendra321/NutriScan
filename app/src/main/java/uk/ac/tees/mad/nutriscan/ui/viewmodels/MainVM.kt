@@ -40,6 +40,12 @@ class MainVM @Inject constructor(
         )
 
 
+    init {
+        viewModelScope.launch {
+            repo.fetchAndStore()
+        }
+    }
+
 
     fun fetchRecipe() {
         _recipe.value = ApiResponse.Loading

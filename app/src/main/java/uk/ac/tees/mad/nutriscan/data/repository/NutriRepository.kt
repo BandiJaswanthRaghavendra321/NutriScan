@@ -31,18 +31,8 @@ class NutriRepository @Inject constructor(
                 firestore.collection("users").document(authentication.uid!!)
                     .collection("products").document(barcode).set(res.product).await()
 
-                val result = firestore.collection("users").document(authentication.uid!!)
-                    .collection("products").get().await()
+                fetchAndStore()
 
-                val products = result.documents.mapNotNull {
-                    it.toObject(ProductRemote::class.java)
-                }
-
-                productDao.deleteProduct()
-                val mappedProduct = products.map { product ->
-                    product.toProductLocal()
-                }
-                productDao.insertAllProducts(mappedProduct)
                 onSuccess(res.product)
 
             } else {
@@ -50,6 +40,25 @@ class NutriRepository @Inject constructor(
             }
         } catch (e: Exception) {
             onFailure(e)
+        }
+    }
+
+    suspend fun fetchAndStore(){
+        try{
+            val result = firestore.collection("users").document(authentication.uid!!)
+                .collection("products").get().await()
+
+            val products = result.documents.mapNotNull {
+                it.toObject(ProductRemote::class.java)
+            }
+
+            productDao.deleteProduct()
+            val mappedProduct = products.map { product ->
+                product.toProductLocal()
+            }
+            productDao.insertAllProducts(mappedProduct)
+        }catch (e:Exception){
+            e.printStackTrace()
         }
     }
 

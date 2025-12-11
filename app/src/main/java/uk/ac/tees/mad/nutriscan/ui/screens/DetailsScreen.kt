@@ -14,6 +14,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
@@ -319,4 +320,170 @@ fun generateWarnings(n: uk.ac.tees.mad.nutriscan.data.remote.model.Nutriments?):
     if ((n.salt_100g ?: 0.0) > 1.5) warnings.add("High salt content – limit intake.")
     if ((n.saturated_fat_100g ?: 0.0) > 5) warnings.add("High saturated fat content detected.")
     return warnings
+}
+
+
+@Preview(showBackground = true, name = "NutriScan – Product Details")
+@Composable
+fun ProductDetailsPreview() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFFF5F5F5))
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp)
+    ) {
+        // Top Bar
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color(0xFF4CAF50))
+                .padding(16.dp)
+        ) {
+            Text(
+                "Product Details",
+                color = Color.White,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }
+
+        Spacer(Modifier.height(24.dp))
+
+        // Product Image
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(Color(0xFFE8F5E9)),
+            contentAlignment = Alignment.Center
+        ) {
+            Text("CHOCOLATE BAR", color = Color(0xFF2E7D32), fontSize = 24.sp, fontWeight = FontWeight.Bold)
+        }
+
+        Spacer(Modifier.height(16.dp))
+
+        Text(
+            "Dark Chocolate 70%",
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFF1B5E20)
+        )
+        Text("Lindt Excellence", color = Color(0xFF757575), fontSize = 16.sp)
+
+        Spacer(Modifier.height(12.dp))
+
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Card(
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFF4CAF50).copy(alpha = 0.15f))
+            ) {
+                Column(Modifier.padding(10.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("NutriScore", fontSize = 12.sp, color = Color(0xFF4CAF50))
+                    Text("B", fontWeight = FontWeight.Bold, color = Color(0xFF4CAF50), fontSize = 18.sp)
+                }
+            }
+            Card(
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFF2196F3).copy(alpha = 0.15f))
+            ) {
+                Column(Modifier.padding(10.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("EcoScore", fontSize = 12.sp, color = Color(0xFF2196F3))
+                    Text("A", fontWeight = FontWeight.Bold, color = Color(0xFF2196F3), fontSize = 18.sp)
+                }
+            }
+        }
+
+        Spacer(Modifier.height(32.dp))
+
+        // Nutrition Card
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(20.dp),
+            elevation = CardDefaults.cardElevation(8.dp)
+        ) {
+            Column(Modifier.padding(20.dp)) {
+                Text("Nutritional Info (per 100g)", fontWeight = FontWeight.Bold, fontSize = 18.sp, color = Color(0xFF4CAF50))
+                Spacer(Modifier.height(16.dp))
+
+                NutrientRow("Calories", 580.0, "kcal", 2500.0)
+                NutrientRow("Fat", 42.0, "g", 70.0)
+                NutrientRow("Saturated Fat", 25.0, "g", 20.0)
+                NutrientRow("Sugar", 28.0, "g", 50.0)
+                NutrientRow("Protein", 7.0, "g", 55.0)
+                NutrientRow("Salt", 0.1, "g", 6.0)
+            }
+        }
+
+        Spacer(Modifier.height(20.dp))
+
+        // Warnings
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = Color(0xFFD32F2F).copy(alpha = 0.1f))
+        ) {
+            Column(Modifier.padding(16.dp)) {
+                Text("Warnings", fontWeight = FontWeight.Bold, color = Color(0xFFD32F2F))
+                Spacer(Modifier.height(8.dp))
+                Text("• High sugar content – may not be suitable for diabetics.", color = Color(0xFFD32F2F))
+                Text("• High saturated fat content detected.", color = Color(0xFFD32F2F))
+            }
+        }
+
+        Spacer(Modifier.height(20.dp))
+
+        // Alternatives
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F5E9))
+        ) {
+            Column(Modifier.padding(20.dp)) {
+                Text("Healthier Alternatives", fontWeight = FontWeight.Bold, color = Color(0xFF4CAF50))
+                Spacer(Modifier.height(12.dp))
+                Text("• 85% Dark Chocolate (lower sugar)", color = Color(0xFF2E7D32))
+                Text("• Raw Cacao Nibs", color = Color(0xFF2E7D32))
+            }
+        }
+
+        Spacer(Modifier.height(20.dp))
+
+        // Notes
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            elevation = CardDefaults.cardElevation(6.dp)
+        ) {
+            Column(Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                Text("Add Notes", fontWeight = FontWeight.Bold, color = Color(0xFF4CAF50))
+                Spacer(Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = "Great for occasional treat!",
+                    onValueChange = {},
+                    placeholder = { Text("Write something...") },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp)
+                )
+                Spacer(Modifier.height(12.dp))
+                Button(
+                    onClick = {},
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
+                ) {
+                    Text("Save Note", color = Color.White)
+                }
+            }
+        }
+
+        Spacer(Modifier.height(32.dp))
+
+        Button(
+            onClick = {},
+            modifier = Modifier.fillMaxWidth(0.8f),
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50))
+        ) {
+            Text("Save to Favorites", color = Color.White, fontSize = 16.sp)
+        }
+
+        Spacer(Modifier.height(40.dp))
+    }
 }

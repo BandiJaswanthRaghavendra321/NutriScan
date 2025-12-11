@@ -20,7 +20,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -176,6 +178,156 @@ fun HistoryCard(
                         fontWeight = FontWeight.Bold
                     )
                 }
+            }
+        }
+    }
+}
+
+
+@Preview(showBackground = true, name = "NutriScan – History Screen")
+@Composable
+fun HistoryScreenPreview() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFFE8F5E9)) // GreenLight
+    ) {
+        // Top Bar
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color(0xFF4CAF50))
+                .padding(16.dp)
+        ) {
+            Text(
+                "History",
+                color = Color.White,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }
+
+        Spacer(Modifier.height(24.dp))
+
+        // Sample History Items
+        LazyColumn(
+            modifier = Modifier.padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            items(4) { index ->
+                val names = listOf(
+                    "Lindt Dark Chocolate 70%",
+                    "Alpro Oat Milk Unsweetened",
+                    "Kellogg's Corn Flakes",
+                    "Heinz Tomato Ketchup"
+                )
+                val brands = listOf("Lindt", "Alpro", "Kellogg's", "Heinz")
+                val grades = listOf("B", "A", "C", "D")
+
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { },
+                    shape = RoundedCornerShape(18.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    elevation = CardDefaults.cardElevation(6.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Product Image Placeholder
+                        Box(
+                            modifier = Modifier
+                                .size(70.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(Color(0xFFE8F5E9)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text("IMG", color = Color(0xFF4CAF50), fontWeight = FontWeight.Bold)
+                        }
+
+                        Spacer(Modifier.width(16.dp))
+
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                names[index],
+                                fontSize = 17.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF1B5E20)
+                            )
+                            Text(brands[index], fontSize = 14.sp, color = Color(0xFF757575))
+                            Text("Snack, Chocolate", fontSize = 13.sp, color = Color(0xFF757575))
+                        }
+
+                        // NutriScore Badge
+                        Box(
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clip(CircleShape)
+                                .background(
+                                    when (grades[index]) {
+                                        "A" -> Color(0xFF2ECC71)
+                                        "B" -> Color(0xFF7DCEA0)
+                                        "C" -> Color(0xFFF4D03F)
+                                        "D" -> Color(0xFFE67E22)
+                                        "E" -> Color(0xFFE74C3C)
+                                        else -> Color.Gray
+                                    }
+                                ),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                grades[index],
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 18.sp
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "NutriScan – History Empty State")
+@Composable
+fun HistoryEmptyPreview() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFFE8F5E9))
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color(0xFF4CAF50))
+                .padding(16.dp)
+        ) {
+            Text(
+                "History",
+                color = Color.White,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }
+
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text("No products scanned yet", fontSize = 48.sp)
+                Spacer(Modifier.height(16.dp))
+                Text(
+                    "No products scanned yet\nScan something to get started!",
+                    fontSize = 18.sp,
+                    color = Color(0xFF1B5E20),
+                    textAlign = TextAlign.Center
+                )
             }
         }
     }

@@ -45,7 +45,7 @@ fun BottomBar(navController: NavController) {
 
     NavigationBar(
         modifier = Modifier
-            .padding(horizontal = 20.dp, vertical = 12.dp)
+            .padding(horizontal = 20.dp, vertical = 12.dp).systemBarsPadding()
             .clip(RoundedCornerShape(30.dp))
             .background(
                 Brush.linearGradient(

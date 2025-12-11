@@ -43,6 +43,17 @@ class AuthenticationVM @Inject constructor(
         }
     }
 
+    fun updateName(name : String, onSuccess : () -> Unit){
+        viewModelScope.launch {
+            firestore.collection("users").document(authentication.uid!!).update("name", name)
+                .addOnSuccessListener {
+                    onSuccess()
+                }.addOnFailureListener {
+                    Log.e("AuthenticationVM", "updateName: ${it.localizedMessage}", it)
+                }
+        }
+    }
+
     fun login(context: Context, email: String, password: String, onSuccess : () -> Unit) {
         loading.value = true
             viewModelScope.launch {

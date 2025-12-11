@@ -74,7 +74,9 @@ fun NutriScanApp(activity: FragmentActivity) {
         }
         composable(NutriNavigationComp.Profile.route){
             ProfileScreen(authenticationViewModel, navController){
-
+                navController.navigate(NutriNavigationComp.Auth.route){
+                    popUpTo(0)
+                }
             }
         }
         composable(NutriNavigationComp.History.route){

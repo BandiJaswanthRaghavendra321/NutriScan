@@ -19,7 +19,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import kotlinx.coroutines.delay
@@ -51,151 +53,161 @@ fun ProfileScreen(
         locked = biometricEnabled
     }
 
-    if (locked && biometricEnabled) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(GreenLight),
-            contentAlignment = Alignment.Center
-        ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Icon(
-                    Icons.Default.Fingerprint,
-                    contentDescription = null,
-                    tint = GreenPrimary,
-                    modifier = Modifier.size(80.dp)
-                )
-                Spacer(Modifier.height(12.dp))
-                Text("App Locked", color = GreenDark)
-                Spacer(Modifier.height(8.dp))
-                Button(
-                    onClick = {
-                        if (BiometricHelper.isBiometricAvailable(context)) {
-                            BiometricHelper.showBiometricPrompt(
-                                context,
-                                onSuccess = { locked = false },
-                                onError = { snackbarMessage = it }
-                            )
-                        } else snackbarMessage = "Biometric not available"
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = GreenPrimary),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text("Unlock", color = White)
-                }
-            }
-        }
-    } else {
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = { Text("Profile", color = White) },
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = GreenPrimary),
-                    actions = {
-                        IconButton(onClick = { authVm.logout { onLogout() } }) {
-                            Icon(Icons.Default.Logout, contentDescription = null, tint = White)
-                        }
+//    if (locked && biometricEnabled) {
+//        Box(
+//            modifier = Modifier
+//                .fillMaxSize()
+//                .background(GreenLight),
+//            contentAlignment = Alignment.Center
+//        ) {
+//            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+//                Icon(
+//                    Icons.Default.Fingerprint,
+//                    contentDescription = null,
+//                    tint = GreenPrimary,
+//                    modifier = Modifier.size(80.dp)
+//                )
+//                Spacer(Modifier.height(12.dp))
+//                Text("App Locked", color = GreenDark)
+//                Spacer(Modifier.height(8.dp))
+//                Button(
+//                    onClick = {
+//                        if (BiometricHelper.isBiometricAvailable(context)) {
+//                            BiometricHelper.showBiometricPrompt(
+//                                context,
+//                                onSuccess = { locked = false },
+//                                onError = { snackbarMessage = it }
+//                            )
+//                        } else snackbarMessage = "Biometric not available"
+//                    },
+//                    colors = ButtonDefaults.buttonColors(containerColor = GreenPrimary),
+//                    shape = RoundedCornerShape(12.dp)
+//                ) {
+//                    Text("Unlock", color = White)
+//                }
+//            }
+//        }
+//    } else {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Profile", color = White) },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = GreenPrimary),
+                actions = {
+                    IconButton(onClick = { authVm.logout { onLogout() } }) {
+                        Icon(Icons.Default.Logout, contentDescription = null, tint = White)
                     }
-                )
-            },
-            bottomBar = {
-                BottomBar(navController = navController)
-            },
-            containerColor = GreenLight
-        ) { padding ->
-            Column(
+                }
+            )
+        },
+        bottomBar = {
+            BottomBar(navController = navController)
+        },
+        containerColor = GreenLight
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .padding(padding)
+                .fillMaxSize()
+                .background(GreenLight)
+                .padding(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Box(
                 modifier = Modifier
-                    .padding(padding)
-                    .fillMaxSize()
-                    .background(GreenLight)
-                    .padding(20.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .size(100.dp)
+                    .clip(CircleShape)
+                    .background(GreenPrimary),
+                contentAlignment = Alignment.Center
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(100.dp)
-                        .clip(CircleShape)
-                        .background(GreenPrimary),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(Icons.Default.Person, contentDescription = null, tint = White, modifier = Modifier.size(50.dp))
-                }
+                Icon(
+                    Icons.Default.Person,
+                    contentDescription = null,
+                    tint = White,
+                    modifier = Modifier.size(50.dp)
+                )
+            }
 
-                Spacer(Modifier.height(20.dp))
+            Spacer(Modifier.height(20.dp))
 
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    enabled = editing,
-                    label = { Text("Name") },
-                    trailingIcon = {
-                        Icon(
-                            Icons.Default.Edit,
-                            contentDescription = null,
-                            tint = if (editing) GreenDark else GrayMedium,
-                            modifier = Modifier.clickable {
-                                if (editing) {
-//                                    val uid = authVm.authentication.uid
-//                                    if (uid != null) {
-//                                        authVm.firestore.collection("users")
-//                                            .document(uid)
-//                                            .update("name", name)
-//                                        snackbarMessage = "Name updated!"
-//                                    }
-                                }
-                                editing = !editing
+            OutlinedTextField(
+                value = name,
+                onValueChange = { name = it },
+                enabled = editing,
+                label = { Text("Name") },
+                trailingIcon = {
+                    Icon(
+                        Icons.Default.Edit,
+                        contentDescription = null,
+                        tint = if (editing) GreenDark else GrayMedium,
+                        modifier = Modifier.clickable {
+                            if (editing) {
+                                authVm.updateName(name, onSuccess = {
+                                    Toast.makeText(
+                                        context,
+                                        "Name updated!",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                })
                             }
-                        )
+                            editing = !editing
+                        }
+                    )
+                },
+                shape = RoundedCornerShape(16.dp),
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(Modifier.height(16.dp))
+
+            OutlinedTextField(
+                value = user?.email ?: "",
+                onValueChange = {},
+                enabled = false,
+                label = { Text("Email") },
+                shape = RoundedCornerShape(16.dp),
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(Modifier.height(24.dp))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        scope.launch {
+                            val newValue = !biometricEnabled
+                            if (newValue) {
+                                if (BiometricHelper.isBiometricAvailable(context)) {
+                                    BiometricHelper.showBiometricPrompt(
+                                        context,
+                                        onSuccess = {
+                                            biometricEnabled = true
+                                            scope.launch {
+                                                BiometricPrefs.setEnabled(
+                                                    context,
+                                                    true
+                                                )
+                                            }
+                                        },
+                                        onError = { snackbarMessage = it }
+                                    )
+                                } else snackbarMessage = "Biometric not available"
+                            } else {
+                                biometricEnabled = false
+                                BiometricPrefs.setEnabled(context, false)
+                            }
+                        }
                     },
-                    shape = RoundedCornerShape(16.dp),
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(Modifier.height(16.dp))
-
-                OutlinedTextField(
-                    value = user?.email ?: "",
-                    onValueChange = {},
-                    enabled = false,
-                    label = { Text("Email") },
-                    shape = RoundedCornerShape(16.dp),
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(Modifier.height(24.dp))
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            scope.launch {
-                                val newValue = !biometricEnabled
-                                if (newValue) {
-                                    if (BiometricHelper.isBiometricAvailable(context)) {
-                                        BiometricHelper.showBiometricPrompt(
-                                            context,
-                                            onSuccess = {
-                                                biometricEnabled = true
-                                                scope.launch { BiometricPrefs.setEnabled(context, true) }
-                                            },
-                                            onError = { snackbarMessage = it }
-                                        )
-                                    } else snackbarMessage = "Biometric not available"
-                                } else {
-                                    biometricEnabled = false
-                                    BiometricPrefs.setEnabled(context, false)
-                                }
-                            }
-                        },
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text("App Lock (Biometric)", color = GreenDark, fontWeight = FontWeight.SemiBold)
-                    Switch(checked = biometricEnabled, onCheckedChange = null)
-                }
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("App Lock (Biometric)", color = GreenDark, fontWeight = FontWeight.SemiBold)
+                Switch(checked = biometricEnabled, onCheckedChange = null)
             }
         }
     }
+
 
     snackbarMessage?.let { msg ->
         Snackbar(
@@ -209,5 +221,123 @@ fun ProfileScreen(
             delay(2000)
             snackbarMessage = null
         }
+    }
+}
+
+@Preview(showBackground = true, name = "NutriScan – Profile Screen")
+@Composable
+fun ProfileScreenPreview() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFFE8F5E9)), // GreenLight
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        // Top Bar
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color(0xFF4CAF50))
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                "Profile",
+                color = Color.White,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.weight(1f)
+            )
+            Icon(
+                imageVector = Icons.Default.Logout,
+                contentDescription = "Logout",
+                tint = Color.White
+            )
+        }
+
+        Spacer(Modifier.height(48.dp))
+
+        // Profile Picture
+        Box(
+            modifier = Modifier
+                .size(100.dp)
+                .clip(CircleShape)
+                .background(Color(0xFF4CAF50)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Default.Person,
+                contentDescription = null,
+                tint = Color.White,
+                modifier = Modifier.size(56.dp)
+            )
+        }
+
+        Spacer(Modifier.height(24.dp))
+
+        // Name Field (Editable)
+        OutlinedTextField(
+            value = "Aisha Rahman",
+            onValueChange = {},
+            label = { Text("Name") },
+            enabled = false,
+            trailingIcon = {
+                Icon(
+                    imageVector = Icons.Default.Edit,
+                    contentDescription = "Edit name",
+                    tint = Color(0xFF1B5E20)
+                )
+            },
+            modifier = Modifier.fillMaxWidth(0.9f),
+            shape = RoundedCornerShape(16.dp)
+        )
+
+        Spacer(Modifier.height(16.dp))
+
+        // Email Field (Disabled)
+        OutlinedTextField(
+            value = "aisha@example.com",
+            onValueChange = {},
+            label = { Text("Email") },
+            enabled = false,
+            modifier = Modifier.fillMaxWidth(0.9f),
+            shape = RoundedCornerShape(16.dp)
+        )
+
+        Spacer(Modifier.height(40.dp))
+
+        // Biometric Lock Toggle
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(0.9f)
+                .background(Color.White, RoundedCornerShape(16.dp))
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                "App Lock (Biometric)",
+                color = Color(0xFF1B5E20),
+                fontWeight = FontWeight.SemiBold
+            )
+            Switch(
+                checked = true,
+                onCheckedChange = {},
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = Color(0xFF4CAF50),
+                    checkedTrackColor = Color(0xFFB2DFDB)
+                )
+            )
+        }
+
+        Spacer(Modifier.height(80.dp))
+
+        // Bottom Navigation Placeholder
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(80.dp)
+                .background(Color(0xFF4CAF50).copy(alpha = 0.9f))
+        )
     }
 }
